@@ -75,7 +75,7 @@ def get_names(img_dir,label_dir,save_dir):
     return dic_names_frames
 
 
-
+import numpy as np
 
 def sample_data_lstm(dic_obj,batch_size,seq_len,fut_seq = 0,gap=1,save_dic='pat_start_end.pkl'):
     
@@ -90,40 +90,48 @@ def sample_data_lstm(dic_obj,batch_size,seq_len,fut_seq = 0,gap=1,save_dic='pat_
     random.shuffle(all_names)
     
     used_names = []
+    rem_names = all_names
     
-    
-    #count=0
-    while( len(used_names) <len(all_names) ):
+    while( len(rem_names) >= batch_size ):
         
-        
+        fake_dic={i:{} for i in range(0,batch_size)}
         new_dic = {'current':[],'future':[]}
-        for _ in range(0,batch_size):
+        
+        for b_idx in range(0,batch_size):
+            
+            random.shuffle(all_names)
+            
+            pat = all_names[0]
             
             
             while ( all_names[0] in used_names):
-            
                 random.shuffle(all_names)
-
                 pat = all_names[0]
-            print(pat)
+            #print(pat)
+            if(pat not in fake_dic):
+                fake_dic[b_idx]={'current':[],'future':[]}
+            
+            #fake_dic[b_idx]={'current':[],'future':[]}
+            #pat = all_names[0]
+            
+            #print(pat)
             count = count_dic[pat]
+            
             if(count+seq_len+fut_seq>=len(dic_obj[pat])):
+                
                 used_names.append(pat)
+            
             else:
-                
-                
-                
+            
                 new_dic['current'].append(dic_obj[pat][count:count+seq_len])
                 new_dic['future'].append(dic_obj[pat][count+seq_len:count+seq_len+fut_seq])
                 
-                count_dic[pat] += gap
+                fake_dic[b_idx]['current'].append(list(np.arange(count,count+seq_len)))
+                fake_dic[b_idx]['future'].append(list(np.arange(count+seq_len,count+seq_len+fut_seq)))
+    
+            count_dic[pat] += gap
                 
-        print(count_dic)
-        #yield new_dic
-
-#def load_data_lstm(img_dir,label_dir):
-    ## get the paths of images
-    ## 
+        rem_names = set(all_names)-set(used_names)
     
+    yield(new_dic)
     
-        
