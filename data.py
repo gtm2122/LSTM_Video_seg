@@ -132,6 +132,10 @@ def sample_data_lstm(dic_obj,batch_size,seq_len,fut_seq = 0,gap=1,save_dic='pat_
             count_dic[pat] += gap
                 
         rem_names = set(all_names)-set(used_names)
+        #print(new_dic)
+        yield(new_dic)
+
+#def load_images_from_dic(dic):
     
-    yield(new_dic)
+    
     
