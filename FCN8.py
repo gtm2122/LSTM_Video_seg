@@ -56,7 +56,7 @@ class FCN8_fe(nn.Module):
         self.fc7 = nn.Conv2d(4096, 4096, 1)
         self.relu7 = nn.ReLU(inplace=True)
         self.drop7 = nn.Dropout2d()
-
+        self.gap = torch.nn.AdaptiveMaxPool2d(1)
     def forward(self,x):
         x = self.conv1_1(x)
         x = self.relu1_1(x)
@@ -98,7 +98,7 @@ class FCN8_fe(nn.Module):
         x = self.relu6(x)
         x = self.drop6(x)
         
-        return self.fc7(x)
+        return self.gap(self.fc7(x))
     
     
     
