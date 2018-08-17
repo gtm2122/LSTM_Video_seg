@@ -93,8 +93,7 @@ class FCN8_enc(nn.Module):
         h = self.relu7(self.fc7(h))
         h = self.drop7(h)
         
-        return h,pool3,pool4,x.size()
-        
+        return h,pool3,pool4
 
 class FCN8_dec(nn.Module):
     def __init__(self,n_class=1):
