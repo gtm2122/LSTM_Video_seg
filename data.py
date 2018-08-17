@@ -92,7 +92,8 @@ def sample_data_lstm(dic_obj,batch_size,seq_len,fut_seq = 0,gap=1,save_dic='pat_
     used_names = []
     rem_names = all_names
     
-    while( len(rem_names) >= batch_size ):
+    while( len(all_names)> 2*batch_size ):
+        print(len(all_names))
         
         fake_dic={i:{} for i in range(0,batch_size)}
         new_dic = {'current':[],'future':[]}
@@ -104,9 +105,9 @@ def sample_data_lstm(dic_obj,batch_size,seq_len,fut_seq = 0,gap=1,save_dic='pat_
             pat = all_names[0]
             
             
-            while ( all_names[0] in used_names):
-                random.shuffle(all_names)
-                pat = all_names[0]
+            # while ( all_names[0] in used_names):
+            #     random.shuffle(all_names)
+            #     pat = all_names[0]
             #print(pat)
             if(pat not in fake_dic):
                 fake_dic[b_idx]={'current':[],'future':[]}
@@ -120,7 +121,8 @@ def sample_data_lstm(dic_obj,batch_size,seq_len,fut_seq = 0,gap=1,save_dic='pat_
             if(count+seq_len+fut_seq>=len(dic_obj[pat])):
                 
                 used_names.append(pat)
-            
+                rem_names = set(all_names)-set(used_names)
+                all_names = list(rem_names)
             else:
             
                 new_dic['current'].append(dic_obj[pat][count:count+seq_len])
@@ -129,11 +131,13 @@ def sample_data_lstm(dic_obj,batch_size,seq_len,fut_seq = 0,gap=1,save_dic='pat_
                 fake_dic[b_idx]['current'].append(list(np.arange(count,count+seq_len)))
                 fake_dic[b_idx]['future'].append(list(np.arange(count+seq_len,count+seq_len+fut_seq)))
     
-            count_dic[pat] += gap
+                count_dic[pat] += gap
                 
-        rem_names = set(all_names)-set(used_names)
-        #print(new_dic)
-        yield(new_dic)
+                rem_names = set(all_names)-set(used_names)
+                all_names = list(rem_names)
+                #print(new_dic)
+                yield(new_dic)
+            
 
 #def load_images_from_dic(dic):
     
