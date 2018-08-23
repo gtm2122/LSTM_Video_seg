@@ -1,3 +1,7 @@
+import torch.nn as nn
+import torch
+from torch.autograd import Variable
+
 class ec(nn.Module):
     def __init__(self,input_size = 1,batch_size=32,\
                  hidden_size = 64,num_layers=1,bias=False,\
@@ -12,6 +16,9 @@ class ec(nn.Module):
         
         self.bias = bias
         self.bidirectional = bidirectional
+        
+        self.inp_layer = nn.Linear(self.input_size,self.input_size) ### buffer transform the input
+        
         self.lstm1 = nn.LSTM(input_size = self.input_size,\
                              hidden_size = self.hidden_size,num_layers=self.num_layers,\
                              bias=self.bias,bidirectional=self.bidirectional)
@@ -20,13 +27,23 @@ class ec(nn.Module):
         self.hidden = self.init_hidden()
         #self.num_dir = num_dir
         self.ec_flag = ec_flag
-        self.dec2lin = nn.Linear(hidden_size,hidden_size)
+        self.dec2lin = nn.Linear(hidden_size,input_size) ## buffer to transform the output
+        
     def init_hidden(self):
         return (Variable(torch.zeros(self.num_layers*self.num_dir,self.batch_size,self.hidden_size)),\
                 Variable(torch.zeros(self.num_layers*self.num_dir,self.batch_size,self.hidden_size)))
                 
         
     def forward(self,x,h):
+        
+        orig_size = x.size()
+        
+        x = x.view(orig_size[0]*orig_size[1],-1)
+        
+        x = self.inp_layer(x)
+        
+        x = x.view(orig_size[0],orig_size[1],-1)
+        
         x,h = self.lstm1(x,h)
         
         if(not self.ec_flag):
@@ -44,3 +61,6 @@ class ec(nn.Module):
         #x = self.cl(x)
         
         return x,h
+    
+
+
